@@ -20,7 +20,7 @@ public class JournalEntryController {
     private JournalEntryService journalEntryService;
 
     @GetMapping
-    public ResponseEntity<List<JournalEntry>> getAll() {
+    public ResponseEntity<List<JournalEntry>> getAllEntries() {
         List<JournalEntry> allJournalEntries = journalEntryService.getAllJournalEntries();
         if (allJournalEntries.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -29,7 +29,7 @@ public class JournalEntryController {
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<JournalEntry> getByID(@PathVariable ObjectId id) {
+    public ResponseEntity<JournalEntry> getJournalByID(@PathVariable ObjectId id) {
         Optional<JournalEntry> journalEntry = journalEntryService.getJournalEntryById(id);
         if (journalEntry.isPresent()) {
             return new ResponseEntity<>(journalEntry.get(), HttpStatus.OK);
@@ -40,7 +40,6 @@ public class JournalEntryController {
     @PostMapping
     public ResponseEntity<?> createEntry(@RequestBody JournalEntry journalEntry) {
         try {
-            journalEntry.setDateTime(LocalDateTime.now());
             journalEntryService.saveJournalEntry(journalEntry);
             return new ResponseEntity<>(journalEntry, HttpStatus.CREATED);
         }
