@@ -1,6 +1,7 @@
 package com.spring.JournalApplication.service;
 
 import com.spring.JournalApplication.entity.JournalEntry;
+import com.spring.JournalApplication.entity.User;
 import com.spring.JournalApplication.repository.JournalEntryRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,17 @@ public class JournalEntryService {
     @Autowired
     private JournalEntryRepository journalEntryRepository;
 
-    public void saveJournalEntry(JournalEntry journalEntry) {
+    @Autowired UserService userService;
+
+    public void createJournalEntry(JournalEntry journalEntry, String userName) {
+        User user = userService.findByUserName(userName);
+        journalEntry.setDateTime(LocalDateTime.now());
+        JournalEntry savedEntry = journalEntryRepository.save(journalEntry);
+        user.getJournalEntries().add(savedEntry);
+        userService.createUser(user);
+    }
+
+    public void createJournalEntry(JournalEntry journalEntry) {
         journalEntry.setDateTime(LocalDateTime.now());
         journalEntryRepository.save(journalEntry);
     }
@@ -29,7 +40,10 @@ public class JournalEntryService {
         return journalEntryRepository.findById(id);
     }
 
-    public void deleteJournalEntryById(ObjectId id) {
+    public void deleteJournalEntryById(ObjectId id, String userName) {
+        User user = userService.findByUserName(userName);
         journalEntryRepository.deleteById(id);
+        user.getJournalEntries().removeIf(x -> x.getId().equals(id));
+        userService.createUser(user);
     }
 }
