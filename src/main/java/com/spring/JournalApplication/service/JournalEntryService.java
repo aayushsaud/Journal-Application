@@ -19,6 +19,7 @@ public class JournalEntryService {
     private JournalEntryRepository journalEntryRepository;
 
     @Autowired UserService userService;
+
     @Transactional
     public void createJournalEntry(JournalEntry journalEntry, String userName) {
         try {
@@ -26,7 +27,7 @@ public class JournalEntryService {
             journalEntry.setDateTime(LocalDateTime.now());
             JournalEntry savedEntry = journalEntryRepository.save(journalEntry);
             user.getJournalEntries().add(savedEntry);
-            userService.createUser(user);
+            userService.saveUser(user);
         }
         catch (Exception e) {
             throw new RuntimeException("An error occurred while saving the entry.", e);
@@ -50,6 +51,6 @@ public class JournalEntryService {
         User user = userService.findByUserName(userName);
         journalEntryRepository.deleteById(id);
         user.getJournalEntries().removeIf(x -> x.getId().equals(id));
-        userService.createUser(user);
+        userService.saveUser(user);
     }
 }
